@@ -32,7 +32,7 @@ class HomePageRouter extends Router {
 }
 
 class FamilyPageRouter extends Router {
-  static final _routeRE = RegExp(r'^\/family\?fid=(?<fid>[^\/]+)$');
+  static final _routeRE = RegExp(r'^\/family\/(?<fid>[^\/]+)$');
 
   @override
   bool matches(RouteSettings settings) => settings.name.startsWith('/family');
@@ -48,11 +48,11 @@ class FamilyPageRouter extends Router {
   }
 
   static Future<T> navigate<T>(BuildContext context, Family family) =>
-      Navigator.pushNamed<T>(context, '/family?fid=${family.id}');
+      Navigator.pushNamed<T>(context, '/family/${family.id}');
 }
 
 class PersonPageRouter extends Router {
-  static final _routeRE = RegExp(r'^\/family\?fid=(?<fid>[^\/]+)\/person\?pid=(?<pid>[^\/]+)$');
+  static final _routeRE = RegExp(r'^\/family\/(?<fid>[^\/]+)\/person\/(?<pid>[^\/]+)$');
   @override
   bool matches(RouteSettings settings) =>
       settings.name.startsWith('/family') && settings.name.contains('/person');
@@ -69,5 +69,5 @@ class PersonPageRouter extends Router {
   }
 
   static Future<T> navigate<T>(BuildContext context, Family family, Person person) =>
-      Navigator.pushNamed<T>(context, '/family?fid=${family.id}/person?pid=${person.id}');
+      Navigator.pushNamed<T>(context, '/family/${family.id}/person/${person.id}');
 }
