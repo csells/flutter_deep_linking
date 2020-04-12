@@ -1,66 +1,19 @@
 import 'package:flutter/material.dart';
+import 'data.dart';
+import 'routers.dart';
 
 void main() => runApp(App());
 
 class App extends StatelessWidget {
   static final title = 'Flutter Web Deep Linking Demo';
-  static final families = [
-    Family(
-      id: 'f1',
-      name: 'Sells',
-      people: [
-        Person(id: 'p1', name: 'Chris', age: 50),
-        Person(id: 'p2', name: 'John', age: 25),
-        Person(id: 'p3', name: 'Tom', age: 24),
-      ],
-    ),
-    Family(
-      id: 'f2',
-      name: 'Addams',
-      people: [
-        Person(id: 'p1', name: 'Gomez', age: 55),
-        Person(id: 'p2', name: 'Morticia', age: 50),
-        Person(id: 'p3', name: 'Pugsley', age: 10),
-        Person(id: 'p4', name: 'Wednesday', age: 17),
-      ],
-    ),
-  ];
+  static final families = Families.data;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: title,
         theme: ThemeData(primarySwatch: Colors.blue),
         home: HomePage(),
-        onGenerateRoute: (settings) {
-          final name = settings.name;
-
-          // start from most specific first
-          if (name.startsWith('/family') && name.contains('/person')) {
-            final re = RegExp(r'\/family\?fid=(?<fid>[^\/]+)\/person\?pid=(?<pid>[^\/]+)$');
-            final match = re.firstMatch(name);
-            if (match != null) {
-              final fid = match.namedGroup('fid');
-              final pid = match.namedGroup('pid');
-              return MaterialPageRoute(settings: settings, builder: (_) => PersonPage(fid, pid));
-            }
-          }
-
-          if (name.startsWith('/family')) {
-            final re = RegExp(r'\/family\?fid=(?<fid>[^\/]+)$');
-            final match = re.firstMatch(name);
-            if (match != null) {
-              final fid = match.namedGroup('fid');
-              return MaterialPageRoute(settings: settings, builder: (_) => FamilyPage(fid));
-            }
-          }
-
-          if (settings.name == '/') {
-            return MaterialPageRoute(settings: settings, builder: (_) => HomePage());
-          }
-
-          return MaterialPageRoute(
-              settings: settings, builder: (_) => Four04Page('unknown route: ${settings.name}'));
-        },
+        onGenerateRoute: (settings) => Router.onGenerateRoute(settings),
       );
 }
 
@@ -70,9 +23,8 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(title: Text(App.title)),
         body: ListView(
           children: App.families
-              .map((f) => ListTile(
-                  title: Text(f.name),
-                  onTap: () => Navigator.pushNamed(context, '/family?fid=${f.id}')))
+              .map((f) =>
+                  ListTile(title: Text(f.name), onTap: () => FamilyPageRouter.navigate(context, f)))
               .toList(),
         ),
       );
@@ -84,7 +36,7 @@ class FamilyPage extends StatelessWidget {
 
   static Future<Family> _load(String fid) async {
     // simulate a network lookup...
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(Duration(seconds: 1));
 
     final family = App.families.singleWhere((f) => f.id == fid, orElse: () => null);
     if (family == null) throw 'unknown family: $fid';
@@ -109,19 +61,12 @@ class FamilyPage extends StatelessWidget {
                   children: snapshot.data.people
                       .map((p) => ListTile(
                           title: Text(p.name),
-                          onTap: () => Navigator.pushNamed(
-                              context, '/family?fid=${snapshot.data.id}/person?pid=${p.id}')))
+                          onTap: () => PersonPageRouter.navigate(context, snapshot.data, p)))
                       .toList(),
                 )
               : snapshot.hasError ? Text(snapshot.error) : CircularProgressIndicator(),
         ),
       );
-}
-
-class FamilyPerson {
-  final Family family;
-  final Person person;
-  FamilyPerson(this.family, this.person);
 }
 
 class PersonPage extends StatelessWidget {
@@ -130,7 +75,7 @@ class PersonPage extends StatelessWidget {
 
   static Future<FamilyPerson> _load(String fid, String pid) async {
     // simulate a network lookup...
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(Duration(seconds: 1));
 
     final family = App.families.singleWhere((f) => f.id == fid, orElse: () => null);
     if (family == null) throw 'unknown family: $fid';
@@ -172,18 +117,4 @@ class Four04Page extends StatelessWidget {
         appBar: AppBar(title: Text('Page Not Found')),
         body: Center(child: Text(message)),
       );
-}
-
-class Person {
-  final String id;
-  final String name;
-  final int age;
-  Person({@required this.id, this.name, this.age});
-}
-
-class Family {
-  final String id;
-  final String name;
-  final List<Person> people;
-  Family({@required this.id, this.name, this.people});
 }
