@@ -32,24 +32,34 @@ class App extends StatelessWidget {
         theme: ThemeData(primarySwatch: Colors.blue),
         home: HomePage(),
         onGenerateRoute: (settings) {
-          final parts = settings.name.split('?');
-          final args = parts.length == 2 ? Uri.splitQueryString(parts[1]) : null;
-          switch (parts[0]) {
-            case '/':
-              return MaterialPageRoute(settings: settings, builder: (_) => HomePage());
+          final name = settings.name;
 
-            case '/family':
-              return MaterialPageRoute(settings: settings, builder: (_) => FamilyPage(args['fid']));
-
-            case '/person':
-              return MaterialPageRoute(
-                  settings: settings, builder: (_) => PersonPage(args['fid'], args['pid']));
-
-            default:
-              return MaterialPageRoute(
-                  settings: settings,
-                  builder: (_) => Four04Page('unknown route: ${settings.name}'));
+          // start from most specific first
+          if (name.startsWith('/family') && name.contains('/person')) {
+            final re = RegExp(r'\/family\?fid=(?<fid>[^\/]+)\/person\?pid=(?<pid>[^\/]+)$');
+            final match = re.firstMatch(name);
+            if (match != null) {
+              final fid = match.namedGroup('fid');
+              final pid = match.namedGroup('pid');
+              return MaterialPageRoute(settings: settings, builder: (_) => PersonPage(fid, pid));
+            }
           }
+
+          if (name.startsWith('/family')) {
+            final re = RegExp(r'\/family\?fid=(?<fid>[^\/]+)$');
+            final match = re.firstMatch(name);
+            if (match != null) {
+              final fid = match.namedGroup('fid');
+              return MaterialPageRoute(settings: settings, builder: (_) => FamilyPage(fid));
+            }
+          }
+
+          if (settings.name == '/') {
+            return MaterialPageRoute(settings: settings, builder: (_) => HomePage());
+          }
+
+          return MaterialPageRoute(
+              settings: settings, builder: (_) => Four04Page('unknown route: ${settings.name}'));
         },
       );
 }
@@ -100,7 +110,7 @@ class FamilyPage extends StatelessWidget {
                       .map((p) => ListTile(
                           title: Text(p.name),
                           onTap: () => Navigator.pushNamed(
-                              context, '/person?fid=${snapshot.data.id}&pid=${p.id}')))
+                              context, '/family?fid=${snapshot.data.id}/person?pid=${p.id}')))
                       .toList(),
                 )
               : snapshot.hasError ? Text(snapshot.error) : CircularProgressIndicator(),
