@@ -4,6 +4,27 @@ void main() => runApp(App());
 
 class App extends StatelessWidget {
   static final title = 'Flutter Web Deep Linking Demo';
+  static final families = [
+    Family(
+      id: 'f1',
+      name: 'Sells',
+      people: [
+        Person(id: 'p1', name: 'Chris', age: 50),
+        Person(id: 'p2', name: 'John', age: 25),
+        Person(id: 'p3', name: 'Tom', age: 24),
+      ],
+    ),
+    Family(
+      id: 'f2',
+      name: 'Addams',
+      people: [
+        Person(id: 'p1', name: 'Gomez', age: 55),
+        Person(id: 'p2', name: 'Morticia', age: 50),
+        Person(id: 'p3', name: 'Pugsley', age: 10),
+        Person(id: 'p4', name: 'Wednesday', age: 17),
+      ],
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -11,18 +32,38 @@ class App extends StatelessWidget {
         theme: ThemeData(primarySwatch: Colors.blue),
         home: HomePage(),
         onGenerateRoute: (settings) {
-          final args = settings.arguments as Map<String, dynamic>;
-          switch (settings.name) {
+          final parts = settings.name.split('?');
+          final args = parts.length == 2 ? Uri.splitQueryString(parts[1]) : null;
+          switch (parts[0]) {
             case '/':
               return MaterialPageRoute(settings: settings, builder: (_) => HomePage());
+
             case '/family':
-              final family = args['family'] as Family;
+              final family =
+                  App.families.singleWhere((f) => f.id == args['fid'], orElse: () => null);
+              if (family == null)
+                return MaterialPageRoute(
+                    settings: settings,
+                    builder: (_) => Four04Page('unknown family: ${args["fid"]}'));
               return MaterialPageRoute(settings: settings, builder: (_) => FamilyPage(family));
+
             case '/person':
-              final family = args['family'] as Family;
-              final person = args['person'] as Person;
+              final family =
+                  App.families.singleWhere((f) => f.id == args['fid'], orElse: () => null);
+              if (family == null)
+                return MaterialPageRoute(
+                    settings: settings,
+                    builder: (_) => Four04Page('unknown family: ${args["fid"]}'));
+              final person =
+                  family.people.singleWhere((p) => p.id == args['pid'], orElse: () => null);
+              if (person == null)
+                return MaterialPageRoute(
+                    settings: settings,
+                    builder: (_) => Four04Page('unknown person: ${args["pid"]}'));
+
               return MaterialPageRoute(
                   settings: settings, builder: (_) => PersonPage(family, person));
+
             default:
               return MaterialPageRoute(
                   settings: settings,
@@ -33,34 +74,14 @@ class App extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  static final families = [
-    Family(
-      name: 'Sells',
-      people: [
-        Person(name: 'Chris', age: 50),
-        Person(name: 'John', age: 25),
-        Person(name: 'Tom', age: 24),
-      ],
-    ),
-    Family(
-      name: 'Addams',
-      people: [
-        Person(name: 'Gomez', age: 55),
-        Person(name: 'Morticia', age: 50),
-        Person(name: 'Pugsley', age: 10),
-        Person(name: 'Wednesday', age: 17),
-      ],
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text(App.title)),
         body: ListView(
-          children: families
+          children: App.families
               .map((f) => ListTile(
                   title: Text(f.name),
-                  onTap: () => Navigator.pushNamed(context, '/family', arguments: {'family': f})))
+                  onTap: () => Navigator.pushNamed(context, '/family?fid=${f.id}')))
               .toList(),
         ),
       );
@@ -77,8 +98,8 @@ class FamilyPage extends StatelessWidget {
           children: family.people
               .map((p) => ListTile(
                   title: Text(p.name),
-                  onTap: () => Navigator.pushNamed(context, '/person',
-                      arguments: {'family': family, 'person': p})))
+                  onTap: () =>
+                      Navigator.pushNamed(context, '/person?fid=${family.id}&pid=${p.id}')))
               .toList(),
         ),
       );
@@ -108,13 +129,15 @@ class Four04Page extends StatelessWidget {
 }
 
 class Person {
+  final String id;
   final String name;
   final int age;
-  Person({this.name, this.age});
+  Person({@required this.id, this.name, this.age});
 }
 
 class Family {
+  final String id;
   final String name;
   final List<Person> people;
-  Family({this.name, this.people});
+  Family({@required this.id, this.name, this.people});
 }
