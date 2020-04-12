@@ -39,30 +39,11 @@ class App extends StatelessWidget {
               return MaterialPageRoute(settings: settings, builder: (_) => HomePage());
 
             case '/family':
-              final family =
-                  App.families.singleWhere((f) => f.id == args['fid'], orElse: () => null);
-              if (family == null)
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (_) => Four04Page('unknown family: ${args["fid"]}'));
-              return MaterialPageRoute(settings: settings, builder: (_) => FamilyPage(family));
+              return MaterialPageRoute(settings: settings, builder: (_) => FamilyPage(args['fid']));
 
             case '/person':
-              final family =
-                  App.families.singleWhere((f) => f.id == args['fid'], orElse: () => null);
-              if (family == null)
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (_) => Four04Page('unknown family: ${args["fid"]}'));
-              final person =
-                  family.people.singleWhere((p) => p.id == args['pid'], orElse: () => null);
-              if (person == null)
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (_) => Four04Page('unknown person: ${args["pid"]}'));
-
               return MaterialPageRoute(
-                  settings: settings, builder: (_) => PersonPage(family, person));
+                  settings: settings, builder: (_) => PersonPage(args['fid'], args['pid']));
 
             default:
               return MaterialPageRoute(
@@ -88,32 +69,87 @@ class HomePage extends StatelessWidget {
 }
 
 class FamilyPage extends StatelessWidget {
-  final Family family;
-  FamilyPage(this.family);
+  final Future<Family> family;
+  FamilyPage(String fid) : family = _load(fid);
+
+  static Future<Family> _load(String fid) async {
+    // simulate a network lookup...
+    await Future.delayed(Duration(seconds: 3));
+
+    final family = App.families.singleWhere((f) => f.id == fid, orElse: () => null);
+    if (family == null) throw 'unknown family: $fid';
+
+    return family;
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(family.name)),
-        body: ListView(
-          children: family.people
-              .map((p) => ListTile(
-                  title: Text(p.name),
-                  onTap: () =>
-                      Navigator.pushNamed(context, '/person?fid=${family.id}&pid=${p.id}')))
-              .toList(),
+        appBar: AppBar(
+          title: FutureBuilder<Family>(
+            future: family,
+            builder: (_, snapshot) => snapshot.hasData
+                ? Text(snapshot.data.name)
+                : snapshot.hasError ? Text('Page Not Found') : Text('Loading...'),
+          ),
+        ),
+        body: FutureBuilder<Family>(
+          future: family,
+          builder: (_, snapshot) => snapshot.hasData
+              ? ListView(
+                  children: snapshot.data.people
+                      .map((p) => ListTile(
+                          title: Text(p.name),
+                          onTap: () => Navigator.pushNamed(
+                              context, '/person?fid=${snapshot.data.id}&pid=${p.id}')))
+                      .toList(),
+                )
+              : snapshot.hasError ? Text(snapshot.error) : CircularProgressIndicator(),
         ),
       );
 }
 
-class PersonPage extends StatelessWidget {
+class FamilyPerson {
   final Family family;
   final Person person;
-  PersonPage(this.family, this.person);
+  FamilyPerson(this.family, this.person);
+}
+
+class PersonPage extends StatelessWidget {
+  final Future<FamilyPerson> familyPerson;
+  PersonPage(String fid, String pid) : familyPerson = _load(fid, pid);
+
+  static Future<FamilyPerson> _load(String fid, String pid) async {
+    // simulate a network lookup...
+    await Future.delayed(Duration(seconds: 3));
+
+    final family = App.families.singleWhere((f) => f.id == fid, orElse: () => null);
+    if (family == null) throw 'unknown family: $fid';
+
+    final person = family.people.singleWhere((p) => p.id == pid, orElse: () => null);
+    if (person == null) throw 'unknown person: $pid';
+
+    return FamilyPerson(family, person);
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(person.name)),
-        body: Center(child: Text('${person.name} ${family.name} is ${person.age} years old')),
+        appBar: AppBar(
+          title: FutureBuilder<FamilyPerson>(
+            future: familyPerson,
+            builder: (_, snapshot) => snapshot.hasData
+                ? Text(snapshot.data.person.name)
+                : snapshot.hasError ? Text('Page Not Found') : Text('Loading...'),
+          ),
+        ),
+        body: Center(
+          child: FutureBuilder<FamilyPerson>(
+            future: familyPerson,
+            builder: (_, snapshot) => snapshot.hasData
+                ? Text(
+                    '${snapshot.data.person.name} ${snapshot.data.family.name} is ${snapshot.data.person.age} years old')
+                : snapshot.hasError ? Text(snapshot.error) : CircularProgressIndicator(),
+          ),
+        ),
       );
 }
 
