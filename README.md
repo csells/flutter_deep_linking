@@ -1,16 +1,17 @@
-# flutter_web_deep_linking
+# Flutter Web Deep Linking sample
+This sample app shows off current best practices for handling deep linking, navigation and routing on the web when using Flutter. The same techniques also work in other Flutter apps, but they have fewer edge cases, e.g. you don't have to worry about people editing your route names in Flutter desktop because there's no address bar.
 
-A new Flutter project.
+This code also has [a blog post](TODO) that describes the principles used to produce it. I recommend starting there.
 
-## Getting Started
+## Demo
+You can try this sample app [here](TODO).
 
-This project is a starting point for a Flutter application.
+## Files
+- **main.dart**: where the page widgets are defined, e.g. `PersonPage`
+- **routers.dart**: where the `Router` helper is defined as well as the objects that know how to compose route names like `/family/452/person/42` and then to route them to the `PersonPage` with the appropriate famil and person object IDs
+- **data.dart**: the simple data model that goes with this app
 
-A few resources to get you started if this is your first Flutter project:
+## Usage
+To take advantage of this code, I recommend coping `routers.dart` into your project, tailoring it to fit your routable pages and then setting the `MaterialApp onGenerateRoute` property to `Router.onGenerateRoute`.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Enjoy.

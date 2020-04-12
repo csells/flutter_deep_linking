@@ -3,23 +3,23 @@ import 'data.dart';
 import 'main.dart';
 
 abstract class Router {
-  static final routers = [
-    // start with most specific one first
-    PersonPageRouter(),
-    FamilyPageRouter(),
-    HomePageRouter(),
-  ];
-
   bool matches(RouteSettings settings);
   MaterialPageRoute route(RouteSettings settings);
 
-  static onGenerateRoute(RouteSettings settings) {
+  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     final router = routers.firstWhere((r) => r.matches(settings), orElse: () => null);
     return router != null
         ? router.route(settings)
         : MaterialPageRoute(
             settings: settings, builder: (_) => Four04Page('unknown route: ${settings.name}'));
   }
+
+  static final routers = [
+    // start with most specific one first
+    PersonPageRouter(),
+    FamilyPageRouter(),
+    HomePageRouter(),
+  ];
 }
 
 class HomePageRouter extends Router {

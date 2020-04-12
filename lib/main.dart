@@ -13,7 +13,7 @@ class App extends StatelessWidget {
         title: title,
         theme: ThemeData(primarySwatch: Colors.blue),
         home: HomePage(),
-        onGenerateRoute: (settings) => Router.onGenerateRoute(settings),
+        onGenerateRoute: Router.onGenerateRoute,
       );
 }
 
