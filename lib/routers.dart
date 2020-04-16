@@ -24,7 +24,7 @@ abstract class Router {
 
 class HomePageRouter extends Router {
   @override
-  bool matches(RouteSettings settings) => settings.name == '/';
+  bool matches(RouteSettings settings) => settings.name == null || settings.name.isEmpty|| settings.name == '/';
 
   @override
   MaterialPageRoute route(RouteSettings settings) =>
