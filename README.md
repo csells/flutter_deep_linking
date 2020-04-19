@@ -15,3 +15,6 @@ You can try this sample app [here](https://csells.github.io/flutter_web_deep_lin
 To take advantage of this code, I recommend coping `routers.dart` into your project, tailoring it to fit your routable pages and then setting the `MaterialApp onGenerateRoute` property to `Router.onGenerateRoute`.
 
 Enjoy.
+
+## Repository Pattern
+P.S. Check out the 'repository' branch for a refactor based on [the repository pattern](https://deviq.com/repository-pattern/).
