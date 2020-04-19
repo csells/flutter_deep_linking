@@ -23,8 +23,10 @@ abstract class Router {
 }
 
 class HomePageRouter extends Router {
+  // will be called w/o a name if you don't set a home property in your MaterialApp
   @override
-  bool matches(RouteSettings settings) => settings.name == null || settings.name.isEmpty|| settings.name == '/';
+  bool matches(RouteSettings settings) =>
+      settings.name == null || settings.name.isEmpty || settings.name == '/';
 
   @override
   MaterialPageRoute route(RouteSettings settings) =>
