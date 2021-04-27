@@ -12,12 +12,6 @@ class Family {
   Family({required this.id, required this.name, required this.people});
 }
 
-class FamilyPerson {
-  final Family family;
-  final Person person;
-  FamilyPerson(this.family, this.person);
-}
-
 class Families {
   static final data = [
     Family(

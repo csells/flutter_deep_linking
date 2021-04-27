@@ -70,7 +70,7 @@ linter:
     - empty_statements
     - exhaustive_cases
     - file_names
-    - flutter_style_todos
+    # - flutter_style_todos # no need to be that formal about the TODO format
     - hash_and_equals
     - implementation_imports
     - invariant_booleans
