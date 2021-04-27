@@ -1,8 +1,8 @@
 {
-    "name": "flutter_web_deep_linking",
-    "short_name": "flutter_web_deep_linking",
+    "name": "flutter_deep_linking",
+    "short_name": "flutter_deep_linking",
     "start_url": ".",
-    "display": "minimal-ui",
+    "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
     "description": "A new Flutter project.",

@@ -1,30 +1,34 @@
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
 import 'data.dart';
 import 'routers.dart';
 
-void main() => runApp(App());
+void main() => runApp(const App());
 
 class App extends StatelessWidget {
-  static final title = 'Flutter Web Deep Linking Demo';
+  static const title = 'Flutter Web Deep Linking Demo';
   static final families = Families.data;
+
+  const App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: title,
         theme: ThemeData(primarySwatch: Colors.blue),
-        home: HomePage(),
-        onGenerateRoute: Router.onGenerateRoute,
+        home: const HomePage(),
+        onGenerateRoute: AppRouter.onGenerateRoute,
       );
 }
 
 class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(App.title)),
+        appBar: AppBar(title: const Text(App.title)),
         body: ListView(
           children: App.families
-              .map((f) =>
-                  ListTile(title: Text(f.name), onTap: () => FamilyPageRouter.navigate(context, f)))
+              .map((f) => ListTile(title: Text(f.name), onTap: () => FamilyPageRouter.navigate<void>(context, f)))
               .toList(),
         ),
       );
@@ -32,14 +36,16 @@ class HomePage extends StatelessWidget {
 
 class FamilyPage extends StatelessWidget {
   final Future<Family> family;
-  FamilyPage(String fid) : family = _load(fid);
+  FamilyPage(String? fid, {Key? key})
+      : family = _load(fid),
+        super(key: key);
 
-  static Future<Family> _load(String fid) async {
+  static Future<Family> _load(String? fid) async {
     // simulate a network lookup...
-    await Future.delayed(Duration(seconds: 1));
+    await Future<void>.delayed(const Duration(seconds: 1));
 
-    final family = App.families.singleWhere((f) => f.id == fid, orElse: () => null);
-    if (family == null) throw 'unknown family: $fid';
+    final family = App.families.singleWhereOrNull((f) => f.id == fid);
+    if (family == null) throw Exception('unknown family: $fid');
 
     return family;
   }
@@ -50,38 +56,44 @@ class FamilyPage extends StatelessWidget {
           title: FutureBuilder<Family>(
             future: family,
             builder: (_, snapshot) => snapshot.hasData
-                ? Text(snapshot.data.name)
-                : snapshot.hasError ? Text('Page Not Found') : Text('Loading...'),
+                ? Text(snapshot.data!.name)
+                : snapshot.hasError
+                    ? const Text('Page Not Found')
+                    : const Text('Loading...'),
           ),
         ),
         body: FutureBuilder<Family>(
           future: family,
           builder: (_, snapshot) => snapshot.hasData
               ? ListView(
-                  children: snapshot.data.people
+                  children: snapshot.data!.people
                       .map((p) => ListTile(
                           title: Text(p.name),
-                          onTap: () => PersonPageRouter.navigate(context, snapshot.data, p)))
+                          onTap: () => PersonPageRouter.navigate<void>(context, snapshot.data!, p)))
                       .toList(),
                 )
-              : snapshot.hasError ? Text(snapshot.error) : CircularProgressIndicator(),
+              : snapshot.hasError
+                  ? Text(snapshot.error.toString())
+                  : const CircularProgressIndicator(),
         ),
       );
 }
 
 class PersonPage extends StatelessWidget {
   final Future<FamilyPerson> familyPerson;
-  PersonPage(String fid, String pid) : familyPerson = _load(fid, pid);
+  PersonPage(String? fid, String? pid, {Key? key})
+      : familyPerson = _load(fid, pid),
+        super(key: key);
 
-  static Future<FamilyPerson> _load(String fid, String pid) async {
+  static Future<FamilyPerson> _load(String? fid, String? pid) async {
     // simulate a network lookup...
-    await Future.delayed(Duration(seconds: 1));
+    await Future<void>.delayed(const Duration(seconds: 1));
 
-    final family = App.families.singleWhere((f) => f.id == fid, orElse: () => null);
-    if (family == null) throw 'unknown family: $fid';
+    final family = App.families.singleWhereOrNull((f) => f.id == fid);
+    if (family == null) throw Exception('unknown family: $fid');
 
-    final person = family.people.singleWhere((p) => p.id == pid, orElse: () => null);
-    if (person == null) throw 'unknown person: $pid';
+    final person = family.people.singleWhereOrNull((p) => p.id == pid);
+    if (person == null) throw Exception('unknown person: $pid');
 
     return FamilyPerson(family, person);
   }
@@ -92,8 +104,10 @@ class PersonPage extends StatelessWidget {
           title: FutureBuilder<FamilyPerson>(
             future: familyPerson,
             builder: (_, snapshot) => snapshot.hasData
-                ? Text(snapshot.data.person.name)
-                : snapshot.hasError ? Text('Page Not Found') : Text('Loading...'),
+                ? Text(snapshot.data!.person.name)
+                : snapshot.hasError
+                    ? const Text('Page Not Found')
+                    : const Text('Loading...'),
           ),
         ),
         body: Center(
@@ -101,8 +115,10 @@ class PersonPage extends StatelessWidget {
             future: familyPerson,
             builder: (_, snapshot) => snapshot.hasData
                 ? Text(
-                    '${snapshot.data.person.name} ${snapshot.data.family.name} is ${snapshot.data.person.age} years old')
-                : snapshot.hasError ? Text(snapshot.error) : CircularProgressIndicator(),
+                    '${snapshot.data!.person.name} ${snapshot.data!.family.name} is ${snapshot.data!.person.age} years old')
+                : snapshot.hasError
+                    ? Text(snapshot.error.toString())
+                    : const CircularProgressIndicator(),
           ),
         ),
       );
@@ -110,11 +126,11 @@ class PersonPage extends StatelessWidget {
 
 class Four04Page extends StatelessWidget {
   final String message;
-  Four04Page(this.message);
+  const Four04Page(this.message, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text('Page Not Found')),
+        appBar: AppBar(title: const Text('Page Not Found')),
         body: Center(child: Text(message)),
       );
 }

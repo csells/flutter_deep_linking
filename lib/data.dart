@@ -1,17 +1,15 @@
-import 'package:flutter/foundation.dart';
-
 class Person {
   final String id;
   final String name;
   final int age;
-  Person({@required this.id, this.name, this.age});
+  Person({required this.id, required this.name, required this.age});
 }
 
 class Family {
   final String id;
   final String name;
   final List<Person> people;
-  Family({@required this.id, this.name, this.people});
+  Family({required this.id, required this.name, required this.people});
 }
 
 class FamilyPerson {
