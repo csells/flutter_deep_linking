@@ -10,6 +10,5 @@ class App extends StatelessWidget {
         routeInformationParser: AppRouteInformationParser(),
         routerDelegate: AppRouterDelegate(),
         title: 'Flutter Deep Linking Demo',
-        theme: ThemeData(primarySwatch: Colors.blue),
       );
 }
