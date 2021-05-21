@@ -8,9 +8,10 @@ environment:
 
 dependencies:
   collection: ^1.15.0
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^1.0.3
   flutter:
     sdk: flutter
+  nav_stack: ^0.0.3+3
 
 dev_dependencies:
   flutter_test:

@@ -1,30 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:nav_stack/nav_stack.dart';
 import 'data.dart';
 
-class HomePage extends StatelessWidget {
+class FamiliesPage extends StatelessWidget {
   final List<Family> families;
-  final ValueChanged<Family> onTap;
-  const HomePage({required this.families, required this.onTap, Key? key}) : super(key: key);
+  const FamiliesPage({required this.families, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Flutter Deep Linking Demo')),
         body: ListView(
-          children: [for (final f in families) ListTile(title: Text(f.name), onTap: () => onTap(f))],
+          children: [
+            for (final f in families)
+              ListTile(title: Text(f.name), onTap: () => NavStack.of(context).path = '/family/${f.id}')
+          ],
         ),
       );
 }
 
 class FamilyPage extends StatelessWidget {
   final Family family;
-  final ValueChanged<Person> onTap;
-  const FamilyPage({required this.family, required this.onTap, Key? key}) : super(key: key);
+  const FamilyPage({required this.family, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text(family.name)),
         body: ListView(
-          children: [for (final p in family.people) ListTile(title: Text(p.name), onTap: () => onTap(p))],
+          children: [
+            for (final p in family.people)
+              ListTile(
+                  title: Text(p.name), onTap: () => NavStack.of(context).path = '/family/${family.id}/person/${p.id}')
+          ],
         ),
       );
 }
