@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'routing.dart';
 
-void main() => runApp(const App());
+import 'routing.dart' as routing;
+import 'uri_router.dart';
+
+void main() => runApp(App());
 
 class App extends StatelessWidget {
-  const App({Key? key}) : super(key: key);
+  final UriRouter router = UriRouter(builder: routing.routeBuilder);
+  App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => MaterialApp.router(
-        routeInformationParser: UriRouteInformationParser(),
-        routerDelegate: UriRouterDelegate(),
+        routeInformationParser: router.routeInformationParser,
+        routerDelegate: router.routerDelegate,
         title: 'Flutter Deep Linking Demo',
       );
 }

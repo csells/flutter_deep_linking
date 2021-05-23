@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'data.dart';
-import 'routing.dart';
+import 'uri_router.dart';
 
 class FamiliesPage extends StatelessWidget {
   final List<Family> families;
@@ -14,7 +14,7 @@ class FamiliesPage extends StatelessWidget {
             for (final f in families)
               ListTile(
                 title: Text(f.name),
-                onTap: () => UriRouterDelegate.of(context).go('/family/${f.id}'),
+                onTap: () => UriRouter.of(context).go('/family/${f.id}'),
               )
           ],
         ),
@@ -33,7 +33,7 @@ class FamilyPage extends StatelessWidget {
             for (final p in family.people)
               ListTile(
                 title: Text(p.name),
-                onTap: () => UriRouterDelegate.of(context).go('/family/${family.id}/person/${p.id}'),
+                onTap: () => UriRouter.of(context).go('/family/${family.id}/person/${p.id}'),
               ),
           ],
         ),
