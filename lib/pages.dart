@@ -53,3 +53,25 @@ class PersonPage extends StatelessWidget {
         body: Text('${person.name} ${family.name} is ${person.age} years old'),
       );
 }
+
+class Four04Page extends StatelessWidget {
+  final String message;
+  const Four04Page({required this.message, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Page Not Found')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(message),
+              TextButton(
+                onPressed: () => context.go('/'),
+                child: const Text('Home'),
+              ),
+            ],
+          ),
+        ),
+      );
+}

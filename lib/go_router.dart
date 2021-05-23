@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:path_to_regexp/path_to_regexp.dart' as p2re;
 
 typedef GoRouteInfoBuilder = List<GoRoute> Function(BuildContext context);
@@ -13,13 +13,16 @@ class GoRoute {
 
 class GoRouter {
   final GoRouteInfoBuilder builder;
+  final GoRoutePageBuilder error;
   final _routeInformationParser = _UriRouteInformationParser();
   late final _GoRouterDelegate _routerDelegate;
-  GoRouter({required this.builder}) {
-    _routerDelegate = _GoRouterDelegate(uriRouter: this);
+
+  GoRouter({required this.builder, required this.error}) {
+    _routerDelegate = _GoRouterDelegate(goRouter: this);
   }
 
-  GoRouter.routes({required List<GoRoute> routes}) : this(builder: (context) => routes);
+  GoRouter.routes({required List<GoRoute> routes, required GoRoutePageBuilder error})
+      : this(builder: (context) => routes, error: error);
 
   RouteInformationParser<Object> get routeInformationParser => _routeInformationParser;
   RouterDelegate<Object> get routerDelegate => _routerDelegate;
@@ -46,9 +49,9 @@ class _GoRouterDelegate extends RouterDelegate<Uri>
   Uri _uri = Uri.parse('/');
   final _key = GlobalKey<NavigatorState>();
   _Stack<Uri>? _routesForPopping;
-  final GoRouter uriRouter;
+  final GoRouter goRouter;
 
-  _GoRouterDelegate({required this.uriRouter});
+  _GoRouterDelegate({required this.goRouter});
 
   @override
   GlobalKey<NavigatorState> get navigatorKey => _key;
@@ -66,7 +69,7 @@ class _GoRouterDelegate extends RouterDelegate<Uri>
     final routePages = <_RoutePageInfo>[];
     final route = _uri.toString().trim();
     String? error;
-    final infos = uriRouter.builder(context);
+    final infos = goRouter.builder(context);
 
     for (final info in infos) {
       final params = <String>[];
@@ -87,7 +90,7 @@ class _GoRouterDelegate extends RouterDelegate<Uri>
     }
 
     // if the last route doesn't match exactly, then we haven't got a valid stack of pages;
-    // this allows '/' to match as part of a stack of pages but to fail w/ '/nonsense'
+    // this allows '/' to match as part of a stack of pages but to fail on '/nonsense'
     if (route.toLowerCase() != routePages.last.route.toLowerCase()) routePages.clear();
 
     // if no pages found, show an error
@@ -99,10 +102,7 @@ class _GoRouterDelegate extends RouterDelegate<Uri>
       routePages.add(
         _RoutePageInfo(
           route: route,
-          page: MaterialPage<_ErrorPage>(
-            key: const ValueKey('_ErrorPage'),
-            child: _ErrorPage(message: error),
-          ),
+          page: goRouter.error(context, {'message': error}),
         ),
       );
     }
@@ -111,7 +111,7 @@ class _GoRouterDelegate extends RouterDelegate<Uri>
     final pages = [for (final rp in routePages) rp.page];
 
     return _InheritedUriRouter(
-      state: uriRouter,
+      state: goRouter,
       child: Navigator(
         pages: pages,
         onPopPage: (route, dynamic result) {
@@ -174,26 +174,4 @@ class _Stack<T> {
   void clear() => _queue.clear();
   bool get isEmpty => _queue.isEmpty;
   bool get isNotEmpty => _queue.isNotEmpty;
-}
-
-class _ErrorPage extends StatelessWidget {
-  final String message;
-  const _ErrorPage({required this.message, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Navigation Error')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(message),
-              TextButton(
-                onPressed: () => context.go('/'),
-                child: const Text('Home'),
-              ),
-            ],
-          ),
-        ),
-      );
 }
