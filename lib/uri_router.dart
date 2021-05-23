@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // remove the dependency on Material
 import 'package:path_to_regexp/path_to_regexp.dart' as p2re;
 
 typedef UriRouteInfoBuilder = List<UriRouteInfo> Function(BuildContext context);
@@ -12,12 +12,14 @@ class UriRouteInfo {
 }
 
 class UriRouter {
-  UriRouteInfoBuilder builder;
+  final UriRouteInfoBuilder builder;
   final _routeInformationParser = _UriRouteInformationParser();
   late final _UriRouterDelegate _routerDelegate;
   UriRouter({required this.builder}) {
     _routerDelegate = _UriRouterDelegate(uriRouter: this);
   }
+
+  UriRouter.routes({required List<UriRouteInfo> routes}) : this(builder: (context) => routes);
 
   RouteInformationParser<Object> get routeInformationParser => _routeInformationParser;
   RouterDelegate<Object> get routerDelegate => _routerDelegate;

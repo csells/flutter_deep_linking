@@ -6,7 +6,7 @@ import 'uri_router.dart';
 void main() => runApp(App());
 
 class App extends StatelessWidget {
-  final UriRouter router = UriRouter(builder: routing.routeBuilder);
+  final UriRouter router = UriRouter.routes(routes: routing.routes);
   App({Key? key}) : super(key: key);
 
   @override
