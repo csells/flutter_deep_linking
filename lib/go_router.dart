@@ -14,7 +14,7 @@ class GoRoute {
 class GoRouter {
   final GoRouteInfoBuilder builder;
   final GoRoutePageBuilder error;
-  final _routeInformationParser = _UriRouteInformationParser();
+  final _routeInformationParser = _GoRouteInformationParser();
   late final _GoRouterDelegate _routerDelegate;
 
   GoRouter({required this.builder, required this.error}) {
@@ -135,7 +135,7 @@ class _GoRouterDelegate extends RouterDelegate<Uri>
   }
 }
 
-class _UriRouteInformationParser extends RouteInformationParser<Uri> {
+class _GoRouteInformationParser extends RouteInformationParser<Uri> {
   @override
   Future<Uri> parseRouteInformation(RouteInformation routeInformation) async =>
       Uri.parse(routeInformation.location ?? '/');
