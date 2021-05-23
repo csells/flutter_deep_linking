@@ -1,201 +1,149 @@
 // from https://medium.com/flutter/learning-flutters-new-navigation-and-routing-system-7c9068155ade
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:path_to_regexp/path_to_regexp.dart';
 import 'data.dart';
 import 'pages.dart';
 
-enum AppRouteConfigKind { unknown, home, family, person }
-
-class AppRouteConfig {
-  final AppRouteConfigKind kind;
-  final String? fid;
-  final String? pid;
-  final String? message;
-
-  AppRouteConfig.unknown({this.message = 'error'})
-      : kind = AppRouteConfigKind.unknown,
-        fid = null,
-        pid = null;
-
-  AppRouteConfig.home()
-      : kind = AppRouteConfigKind.home,
-        fid = null,
-        pid = null,
-        message = null;
-
-  AppRouteConfig.family({required this.fid})
-      : kind = AppRouteConfigKind.family,
-        pid = null,
-        message = null;
-
-  AppRouteConfig.person({required this.fid, required this.pid})
-      : kind = AppRouteConfigKind.person,
-        message = null;
+class RouteMatch {
+  late final bool matches;
+  late final Map<String, String> args;
+  RouteMatch(String routePattern, String route) {
+    final parameters = <String>[];
+    final re = pathToRegExp(routePattern, prefix: true, caseSensitive: false, parameters: parameters);
+    final match = re.matchAsPrefix(route);
+    matches = match != null;
+    if (match != null) args = extract(parameters, match);
+  }
 }
 
-class AppRouterDelegate extends RouterDelegate<AppRouteConfig>
+class UriRouterDelegate extends RouterDelegate<Uri>
     with
-        PopNavigatorRouterDelegateMixin<AppRouteConfig>,
+        PopNavigatorRouterDelegateMixin<Uri>,
         // ignore: prefer_mixin
         ChangeNotifier {
   final _families = Families.data;
-  Family? _selectedFamily;
-  Person? _selectedPerson;
-  // ignore: non_constant_identifier_names
-  String? _404message;
+  Uri _uri = Uri.parse('/');
+  final _key = GlobalKey<NavigatorState>();
 
   @override
-  final navigatorKey = GlobalKey<NavigatorState>();
+  GlobalKey<NavigatorState> get navigatorKey => _key;
 
   @override
-  AppRouteConfig get currentConfiguration => _404message != null
-      ? AppRouteConfig.unknown()
-      : _selectedPerson != null
-          ? AppRouteConfig.person(fid: _selectedFamily!.id, pid: _selectedPerson!.id)
-          : _selectedFamily != null
-              ? AppRouteConfig.family(fid: _selectedFamily!.id)
-              : AppRouteConfig.home();
+  Uri get currentConfiguration => _uri;
+
+  void go(String route) {
+    _uri = Uri.parse(route);
+    notifyListeners();
+  }
 
   @override
-  Widget build(BuildContext context) => Navigator(
-        pages: [
-          MaterialPage<dynamic>(
-            key: const ValueKey('FamiliesPage'),
-            child: HomePage(
-              families: _families,
-              onTap: _familyTapped,
+  Widget build(BuildContext context) {
+    final pages = <Page<dynamic>>[];
+    String? four04message;
+    final route = _uri.toString();
+    RouteMatch routeMatch;
+
+    routeMatch = RouteMatch('/', route);
+    if (routeMatch.matches) {
+      pages.add(
+        MaterialPage<FamiliesPage>(
+          key: const ValueKey('FamiliesPage'),
+          child: FamiliesPage(
+            families: _families,
+          ),
+        ),
+      );
+    }
+
+    routeMatch = RouteMatch('/family/:fid', route);
+    if (routeMatch.matches) {
+      final args = routeMatch.args;
+      final family = _families.singleWhereOrNull((f) => f.id == args['fid']);
+      if (family == null) {
+        four04message = 'unknown family ${args['fid']}';
+      } else {
+        pages.add(
+          MaterialPage<FamilyPage>(
+            key: ValueKey(family),
+            child: FamilyPage(
+              family: family,
             ),
           ),
-          if (_404message != null)
-            MaterialPage<Four04Page>(
-              key: const ValueKey('Four04Page'),
-              child: Four04Page(
-                message: _404message!,
-              ),
-            )
-          else if (_selectedFamily != null)
-            MaterialPage<FamilyPage>(
-              key: ValueKey(_selectedFamily),
-              child: FamilyPage(
-                family: _selectedFamily!,
-                onTap: _personTapped,
-              ),
+        );
+      }
+    }
+
+    routeMatch = RouteMatch('/family/:fid/person/:pid', route);
+    if (routeMatch.matches) {
+      final args = routeMatch.args;
+      final family = _families.singleWhereOrNull((f) => f.id == args['fid']);
+      final person = family?.people.singleWhereOrNull((p) => p.id == args['pid']);
+      if (family == null) {
+        four04message = 'unknown family ${args['fid']}';
+      } else if (person == null) {
+        four04message = 'unknown person ${args['pid']} for family ${args['fid']}';
+      } else {
+        pages.add(
+          MaterialPage<PersonPage>(
+            key: ValueKey(person),
+            child: PersonPage(
+              family: family,
+              person: person,
             ),
-          if (_selectedPerson != null)
-            MaterialPage<PersonPage>(
-              key: ValueKey(_selectedPerson),
-              child: PersonPage(
-                family: _selectedFamily!,
-                person: _selectedPerson!,
-              ),
-            ),
-        ],
+          ),
+        );
+      }
+    }
+
+    if (four04message != null) {
+      pages.clear();
+      pages.add(
+        MaterialPage<Four04Page>(
+          key: const ValueKey('Four04Page'),
+          child: Four04Page(
+            message: four04message,
+          ),
+        ),
+      );
+    }
+
+    return _InheritedUriRouterDelegate(
+      state: this,
+      child: Navigator(
+        pages: pages,
         onPopPage: (route, dynamic result) {
           if (!route.didPop(result)) return false;
-
-          // NOTE: if you're more than one page deep, you need to decide which state to adjust
-          if (route.settings is MaterialPage<FamilyPage>) {
-            _selectedFamily = null;
-            _selectedPerson = null;
-            notifyListeners();
-          } else if (route.settings is MaterialPage<PersonPage>) {
-            _selectedPerson = null;
-            notifyListeners();
-          }
-
+          // TODO: something!
           return true;
         },
-      );
-
-  void _familyTapped(Family family) {
-    _selectedFamily = family;
-    notifyListeners();
-  }
-
-  void _personTapped(Person person) {
-    _selectedPerson = person;
-    notifyListeners();
+      ),
+    );
   }
 
   @override
-  Future<void> setNewRoutePath(AppRouteConfig configuration) async {
-    switch (configuration.kind) {
-      case AppRouteConfigKind.unknown:
-        _selectedFamily = null;
-        _selectedPerson = null;
-        _404message = null;
-        break;
-      case AppRouteConfigKind.home:
-        _selectedFamily = null;
-        _selectedPerson = null;
-        _404message = null;
-        break;
-      case AppRouteConfigKind.family:
-        _selectedFamily = _families.singleWhereOrNull((f) => f.id == configuration.fid);
-        _selectedPerson = null;
-        _404message = _selectedFamily == null ? 'unknown fid ${configuration.fid}' : null;
-        break;
-      case AppRouteConfigKind.person:
-        _selectedFamily = _families.singleWhereOrNull((f) => f.id == configuration.fid);
-        _selectedPerson = _selectedFamily?.people.singleWhereOrNull((p) => p.id == configuration.pid);
-        _404message = _selectedFamily == null
-            ? 'unknown fid ${configuration.fid}'
-            : _selectedPerson == null
-                ? 'unknown pid ${configuration.pid}'
-                : null;
-        break;
-    }
+  Future<void> setNewRoutePath(Uri configuration) async {
+    _uri = configuration;
   }
+
+  static UriRouterDelegate of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_InheritedUriRouterDelegate>()!.state;
 }
 
-class AppRouteInformationParser extends RouteInformationParser<AppRouteConfig> {
+class UriRouteInformationParser extends RouteInformationParser<Uri> {
   @override
-  Future<AppRouteConfig> parseRouteInformation(RouteInformation routeInformation) async {
-    final uri = Uri.parse(routeInformation.location ?? '/');
-
-    // Handle '/'
-    if (uri.pathSegments.isEmpty) return AppRouteConfig.home();
-
-    // Handle '/family/:id'
-    if (uri.pathSegments.length == 2) {
-      if (uri.pathSegments[0] != 'family') return AppRouteConfig.unknown();
-
-      final fid = uri.pathSegments[1];
-      if (fid.isEmpty) return AppRouteConfig.unknown();
-
-      return AppRouteConfig.family(fid: fid);
-    }
-
-    // Handle '/family/:id/person/:id'
-    if (uri.pathSegments.length == 4) {
-      if (uri.pathSegments[0] != 'family') return AppRouteConfig.unknown();
-
-      final fid = uri.pathSegments[1];
-      if (fid.isEmpty) return AppRouteConfig.unknown();
-
-      if (uri.pathSegments[2] != 'person') return AppRouteConfig.unknown();
-
-      final pid = uri.pathSegments[3];
-      if (pid.isEmpty) return AppRouteConfig.unknown();
-
-      return AppRouteConfig.person(fid: fid, pid: pid);
-    }
-
-    // Handle unknown routes
-    return AppRouteConfig.unknown();
-  }
+  Future<Uri> parseRouteInformation(RouteInformation routeInformation) async =>
+      Uri.parse(routeInformation.location ?? '/');
 
   @override
-  RouteInformation restoreRouteInformation(AppRouteConfig configuration) {
-    switch (configuration.kind) {
-      case AppRouteConfigKind.unknown:
-        return const RouteInformation(location: '/404');
-      case AppRouteConfigKind.home:
-        return const RouteInformation(location: '/');
-      case AppRouteConfigKind.family:
-        return RouteInformation(location: '/family/${configuration.fid}');
-      case AppRouteConfigKind.person:
-        return RouteInformation(location: '/family/${configuration.fid}/person/${configuration.pid}');
-    }
-  }
+  RouteInformation restoreRouteInformation(Uri configuration) => RouteInformation(location: configuration.toString());
+}
+
+class _InheritedUriRouterDelegate extends InheritedWidget {
+  final UriRouterDelegate state;
+  const _InheritedUriRouterDelegate({required Widget child, required this.state, Key? key})
+      : super(child: child, key: key);
+
+  @override
+  bool updateShouldNotify(covariant InheritedWidget oldWidget) => true;
 }

@@ -5,10 +5,11 @@ void main() => runApp(const App());
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) => MaterialApp.router(
-        routeInformationParser: AppRouteInformationParser(),
-        routerDelegate: AppRouterDelegate(),
+        routeInformationParser: UriRouteInformationParser(),
+        routerDelegate: UriRouterDelegate(),
         title: 'Flutter Deep Linking Demo',
       );
 }
