@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'routing.dart';
+import 'routing.dart' as routing;
 
 void main() => runApp(const App());
 
@@ -8,8 +8,8 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp.router(
-        routeInformationParser: Routing.routeInformationParser,
-        routerDelegate: Routing.routerDelegate,
+        routeInformationParser: routing.routeInformationParser,
+        routerDelegate: routing.routerDelegate,
         title: 'Flutter Deep Linking Demo',
       );
 }
