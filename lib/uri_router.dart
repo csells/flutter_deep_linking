@@ -24,10 +24,17 @@ class UriRouter {
   RouteInformationParser<Object> get routeInformationParser => _routeInformationParser;
   RouterDelegate<Object> get routerDelegate => _routerDelegate;
 
-  static UriRouter of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_InheritedUriRouter>()!.state;
-
   void go(String route) {
     _routerDelegate.go(route);
+  }
+
+  static String routePath(String routePattern, Map<String, String> args) => p2re.pathToFunction(routePattern)(args);
+  static UriRouter of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_InheritedUriRouter>()!.state;
+}
+
+extension UriRouterHelper on BuildContext {
+  void go(String route) {
+    UriRouter.of(this).go(route);
   }
 }
 
@@ -68,7 +75,7 @@ class _UriRouterDelegate extends RouterDelegate<Uri>
       if (match == null) continue;
       final args = p2re.extract(params, match);
 
-      final routeFromPattern = p2re.pathToFunction(info.routePattern)(args);
+      final routeFromPattern = UriRouter.routePath(info.routePattern, args);
       try {
         final page = info.builder(context, args);
         routePages.add(_RoutePageInfo(route: routeFromPattern, page: page));
@@ -79,7 +86,7 @@ class _UriRouterDelegate extends RouterDelegate<Uri>
       }
     }
 
-    // if the last route doesn't match exactly, then we haven't got a valid stack of pages
+    // if the last route doesn't match exactly, then we haven't got a valid stack of pages;
     // this allows '/' to match as part of a stack of pages but to fail w/ '/nonsense'
     if (route.toLowerCase() != routePages.last.route.toLowerCase()) routePages.clear();
 
@@ -191,7 +198,7 @@ class _ErrorPage extends StatelessWidget {
             children: [
               Text(message),
               TextButton(
-                onPressed: () => UriRouter.of(context).go('/'),
+                onPressed: () => context.go('/'),
                 child: const Text('Home'),
               ),
             ],
