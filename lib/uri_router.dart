@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'package:flutter/material.dart'; // remove the dependency on Material
+import 'package:flutter/material.dart';
 import 'package:path_to_regexp/path_to_regexp.dart' as p2re;
 
 typedef UriRouteInfoBuilder = List<UriRouteInfo> Function(BuildContext context);
@@ -101,7 +101,7 @@ class _UriRouterDelegate extends RouterDelegate<Uri>
           route: route,
           page: MaterialPage<_ErrorPage>(
             key: const ValueKey('_ErrorPage'),
-            child: _ErrorPage(message: error), // TODO: make this replaceable
+            child: _ErrorPage(message: error),
           ),
         ),
       );
@@ -125,15 +125,6 @@ class _UriRouterDelegate extends RouterDelegate<Uri>
 
           return true;
         },
-        // TODO: this almost works! I don't know why the Container stays in the stack of pages...
-        // Doesn't the call to notifyListeners() cause the whole Navigation stack to be rebuilt??
-        // Hmmm... I be the AppBar back button works just fine but the browser back button remembers...
-        // NOTE: this enables Navigator.pushNamed(context, '/family/${f.id}'),
-        // onGenerateRoute: (settings) {
-        //   _uri = Uri.parse(settings.name ?? '/');
-        //   notifyListeners();
-        //   return MaterialPageRoute<Container>(builder: (context) => Container());
-        // },
       ),
     );
   }
