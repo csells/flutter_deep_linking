@@ -15,7 +15,7 @@ final _familiesInfo = GoRoute(
   ),
 );
 
-// e.g. context.go(Routing.forFamilies())
+// e.g. context.go(routing.forFamilies())
 String forFamilies() => _familiesInfo.pattern;
 
 // family page shows a single family
@@ -36,7 +36,7 @@ final _familyInfo = GoRoute(
   },
 );
 
-// e.g. context.go(Routing.forFamily(family: family))
+// e.g. context.go(routing.forFamily(family: family))
 String forFamily({required Family family}) => GoRouter.routePath(_familyInfo.pattern, {'fid': family.id});
 
 // person page shows a person from a family
@@ -63,7 +63,7 @@ final _personInfo = GoRoute(
   },
 );
 
-// e.g. context.go(Routing.forPerson(family: family, person: person))
+// e.g. context.go(routing.forPerson(family: family, person: person))
 String forPerson({required Family family, required Person person}) =>
     GoRouter.routePath(_personInfo.pattern, {'fid': family.id, 'pid': person.id});
 
@@ -80,5 +80,5 @@ final _router = GoRouter.routes(
   ),
 );
 
-RouteInformationParser<Object> get routeInformationParser => _router.routeInformationParser;
-RouterDelegate<Object> get routerDelegate => _router.routerDelegate;
+final routeInformationParser = _router.routeInformationParser;
+final routerDelegate = _router.routerDelegate;
