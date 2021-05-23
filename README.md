@@ -18,8 +18,8 @@ To take advantage of this code, I recommend coping `routing.dart` into your proj
 Enjoy.
 
 # TODO
-- take the # out of the URL
 - test different route groups, e.g. not logged in vs. logged in
 - test async id => object lookup
 - make routing a separate package
 - BUG: navigating back too fast crashes
+- BUG: navigation to error page is slow when using package:url_strategy to remove # from URLs
