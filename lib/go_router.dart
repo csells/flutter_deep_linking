@@ -32,7 +32,7 @@ class GoRouter {
   }
 
   static String routePath(String routePattern, Map<String, String> args) => p2re.pathToFunction(routePattern)(args);
-  static GoRouter of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_InheritedUriRouter>()!.goRouter;
+  static GoRouter of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_InheritedGoRouter>()!.goRouter;
 }
 
 extension GoRouterHelper on BuildContext {
@@ -110,7 +110,7 @@ class _GoRouterDelegate extends RouterDelegate<Uri>
     _routesForPopping = _Stack<Uri>([for (final rp in routePages) Uri.parse(rp.route)]);
     final pages = [for (final rp in routePages) rp.page];
 
-    return _InheritedUriRouter(
+    return _InheritedGoRouter(
       goRouter: goRouter,
       child: Navigator(
         pages: pages,
@@ -144,9 +144,9 @@ class _UriRouteInformationParser extends RouteInformationParser<Uri> {
   RouteInformation restoreRouteInformation(Uri configuration) => RouteInformation(location: configuration.toString());
 }
 
-class _InheritedUriRouter extends InheritedWidget {
+class _InheritedGoRouter extends InheritedWidget {
   final GoRouter goRouter;
-  const _InheritedUriRouter({required Widget child, required this.goRouter, Key? key}) : super(child: child, key: key);
+  const _InheritedGoRouter({required Widget child, required this.goRouter, Key? key}) : super(child: child, key: key);
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => true;
