@@ -16,7 +16,7 @@ class Routing {
     ),
   );
 
-  // e.g. context.go(routing.forFamilies)
+  // e.g. context.go(Routing.forFamilies())
   static String forFamilies() => _familiesInfo.pattern;
 
   // family page shows a single family
@@ -37,7 +37,7 @@ class Routing {
     },
   );
 
-  // e.g. context.go(routing.forFamily(family: family))
+  // e.g. context.go(Routing.forFamily(family: family))
   static String forFamily({required Family family}) => GoRouter.routePath(_familyInfo.pattern, {'fid': family.id});
 
   // person page shows a person from a family
@@ -64,12 +64,12 @@ class Routing {
     },
   );
 
-  // e.g. context.go(routing.forPerson(family: family, person: person))
+  // e.g. context.go(Routing.forPerson(family: family, person: person))
   static String forPerson({required Family family, required Person person}) =>
       GoRouter.routePath(_personInfo.pattern, {'fid': family.id, 'pid': person.id});
 
   // mapping route patterns to specific pages
-  static final router = GoRouter.routes(
+  static final _router = GoRouter.routes(
     routes: [
       _familiesInfo,
       _familyInfo,
@@ -80,4 +80,7 @@ class Routing {
       child: Four04Page(message: args['message']!),
     ),
   );
+
+  static RouteInformationParser<Object> get routeInformationParser => _router.routeInformationParser;
+  static RouterDelegate<Object> get routerDelegate => _router.routerDelegate;
 }

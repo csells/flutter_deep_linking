@@ -8,8 +8,8 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp.router(
-        routeInformationParser: Routing.router.routeInformationParser,
-        routerDelegate: Routing.router.routerDelegate,
+        routeInformationParser: Routing.routeInformationParser,
+        routerDelegate: Routing.routerDelegate,
         title: 'Flutter Deep Linking Demo',
       );
 }
