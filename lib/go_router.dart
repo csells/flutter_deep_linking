@@ -2,13 +2,13 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:path_to_regexp/path_to_regexp.dart' as p2re;
 
-typedef GoRouteInfoBuilder = List<GoRouteInfo> Function(BuildContext context);
+typedef GoRouteInfoBuilder = List<GoRoute> Function(BuildContext context);
 typedef GoRoutePageBuilder = Page<dynamic> Function(BuildContext context, Map<String, String> args);
 
-class GoRouteInfo {
-  final String routePattern;
+class GoRoute {
+  final String pattern;
   final GoRoutePageBuilder builder;
-  GoRouteInfo({required this.routePattern, required this.builder});
+  GoRoute({required this.pattern, required this.builder});
 }
 
 class GoRouter {
@@ -19,7 +19,7 @@ class GoRouter {
     _routerDelegate = _GoRouterDelegate(uriRouter: this);
   }
 
-  GoRouter.routes({required List<GoRouteInfo> routes}) : this(builder: (context) => routes);
+  GoRouter.routes({required List<GoRoute> routes}) : this(builder: (context) => routes);
 
   RouteInformationParser<Object> get routeInformationParser => _routeInformationParser;
   RouterDelegate<Object> get routerDelegate => _routerDelegate;
@@ -70,12 +70,12 @@ class _GoRouterDelegate extends RouterDelegate<Uri>
 
     for (final info in infos) {
       final params = <String>[];
-      final re = p2re.pathToRegExp(info.routePattern, prefix: true, caseSensitive: false, parameters: params);
+      final re = p2re.pathToRegExp(info.pattern, prefix: true, caseSensitive: false, parameters: params);
       final match = re.matchAsPrefix(route);
       if (match == null) continue;
       final args = p2re.extract(params, match);
 
-      final routeFromPattern = GoRouter.routePath(info.routePattern, args);
+      final routeFromPattern = GoRouter.routePath(info.pattern, args);
       try {
         final page = info.builder(context, args);
         routePages.add(_RoutePageInfo(route: routeFromPattern, page: page));

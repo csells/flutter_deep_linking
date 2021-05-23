@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'data.dart';
 import 'go_router.dart';
-import 'routing.dart' as routing;
+import 'routing.dart';
 
 class FamiliesPage extends StatelessWidget {
   final List<Family> families;
@@ -16,7 +16,7 @@ class FamiliesPage extends StatelessWidget {
             for (final f in families)
               ListTile(
                 title: Text(f.name),
-                onTap: () => context.go(routing.forFamily(family: f)),
+                onTap: () => context.go(Routing.forFamily(family: f)),
               )
           ],
         ),
@@ -35,7 +35,7 @@ class FamilyPage extends StatelessWidget {
             for (final p in family.people)
               ListTile(
                 title: Text(p.name),
-                onTap: () => context.go(routing.forPerson(family: family, person: p)),
+                onTap: () => context.go(Routing.forPerson(family: family, person: p)),
               ),
           ],
         ),
