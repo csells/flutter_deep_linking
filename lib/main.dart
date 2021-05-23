@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'go_router.dart';
 import 'routing.dart' as routing;
-import 'uri_router.dart';
 
 void main() => runApp(App());
 
 class App extends StatelessWidget {
-  final UriRouter router = UriRouter.routes(routes: routing.routes);
+  final GoRouter router = GoRouter.routes(routes: routing.routes);
   App({Key? key}) : super(key: key);
 
   @override

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'data.dart';
+import 'go_router.dart';
 import 'pages.dart';
-import 'uri_router.dart';
 
 // home page shows a list of families
-final _familiesInfo = UriRouteInfo(
+final _familiesInfo = GoRouteInfo(
   routePattern: '/',
   builder: (context, args) => MaterialPage<FamiliesPage>(
     key: const ValueKey('FamiliesPage'),
@@ -19,7 +19,7 @@ final _familiesInfo = UriRouteInfo(
 String forFamilies() => _familiesInfo.routePattern;
 
 // family page shows a single family
-final _familyInfo = UriRouteInfo(
+final _familyInfo = GoRouteInfo(
   routePattern: '/family/:fid',
   builder: (context, args) {
     final family = Families.data.singleWhere(
@@ -37,10 +37,10 @@ final _familyInfo = UriRouteInfo(
 );
 
 // e.g. context.go(routing.forFamily(family: family))
-String forFamily({required Family family}) => UriRouter.routePath(_familyInfo.routePattern, {'fid': family.id});
+String forFamily({required Family family}) => GoRouter.routePath(_familyInfo.routePattern, {'fid': family.id});
 
 // person page shows a person from a family
-final _personInfo = UriRouteInfo(
+final _personInfo = GoRouteInfo(
   routePattern: '/family/:fid/person/:pid',
   builder: (context, args) {
     final family = Families.data.singleWhere(
@@ -65,10 +65,10 @@ final _personInfo = UriRouteInfo(
 
 // e.g. context.go(routing.forPerson(family: family, person: person))
 String forPerson({required Family family, required Person person}) =>
-    UriRouter.routePath(_personInfo.routePattern, {'fid': family.id, 'pid': person.id});
+    GoRouter.routePath(_personInfo.routePattern, {'fid': family.id, 'pid': person.id});
 
 // mapping route patterns to specific pages
-final routes = <UriRouteInfo>[
+final routes = <GoRouteInfo>[
   _familiesInfo,
   _familyInfo,
   _personInfo,

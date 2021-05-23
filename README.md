@@ -18,11 +18,9 @@ To take advantage of this code, I recommend coping `routing.dart` into your proj
 Enjoy.
 
 # TODO
-- simplify, simplify, simplify!
-- rename GoRouter
 - replaceable error page
 - remove the dependency on Material in router
-- make routing a separate package
 - test different route groups, e.g. not logged in vs. logged in
 - test async id => object lookup
+- make routing a separate package
 - BUG: navigating back too fast crashes

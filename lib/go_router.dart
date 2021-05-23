@@ -2,24 +2,24 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:path_to_regexp/path_to_regexp.dart' as p2re;
 
-typedef UriRouteInfoBuilder = List<UriRouteInfo> Function(BuildContext context);
-typedef UriRoutePageBuilder = Page<dynamic> Function(BuildContext context, Map<String, String> args);
+typedef GoRouteInfoBuilder = List<GoRouteInfo> Function(BuildContext context);
+typedef GoRoutePageBuilder = Page<dynamic> Function(BuildContext context, Map<String, String> args);
 
-class UriRouteInfo {
+class GoRouteInfo {
   final String routePattern;
-  final UriRoutePageBuilder builder;
-  UriRouteInfo({required this.routePattern, required this.builder});
+  final GoRoutePageBuilder builder;
+  GoRouteInfo({required this.routePattern, required this.builder});
 }
 
-class UriRouter {
-  final UriRouteInfoBuilder builder;
+class GoRouter {
+  final GoRouteInfoBuilder builder;
   final _routeInformationParser = _UriRouteInformationParser();
-  late final _UriRouterDelegate _routerDelegate;
-  UriRouter({required this.builder}) {
-    _routerDelegate = _UriRouterDelegate(uriRouter: this);
+  late final _GoRouterDelegate _routerDelegate;
+  GoRouter({required this.builder}) {
+    _routerDelegate = _GoRouterDelegate(uriRouter: this);
   }
 
-  UriRouter.routes({required List<UriRouteInfo> routes}) : this(builder: (context) => routes);
+  GoRouter.routes({required List<GoRouteInfo> routes}) : this(builder: (context) => routes);
 
   RouteInformationParser<Object> get routeInformationParser => _routeInformationParser;
   RouterDelegate<Object> get routerDelegate => _routerDelegate;
@@ -29,16 +29,16 @@ class UriRouter {
   }
 
   static String routePath(String routePattern, Map<String, String> args) => p2re.pathToFunction(routePattern)(args);
-  static UriRouter of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_InheritedUriRouter>()!.state;
+  static GoRouter of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_InheritedUriRouter>()!.state;
 }
 
-extension UriRouterHelper on BuildContext {
+extension GoRouterHelper on BuildContext {
   void go(String route) {
-    UriRouter.of(this).go(route);
+    GoRouter.of(this).go(route);
   }
 }
 
-class _UriRouterDelegate extends RouterDelegate<Uri>
+class _GoRouterDelegate extends RouterDelegate<Uri>
     with
         PopNavigatorRouterDelegateMixin<Uri>,
         // ignore: prefer_mixin
@@ -46,9 +46,9 @@ class _UriRouterDelegate extends RouterDelegate<Uri>
   Uri _uri = Uri.parse('/');
   final _key = GlobalKey<NavigatorState>();
   _Stack<Uri>? _routesForPopping;
-  final UriRouter uriRouter;
+  final GoRouter uriRouter;
 
-  _UriRouterDelegate({required this.uriRouter});
+  _GoRouterDelegate({required this.uriRouter});
 
   @override
   GlobalKey<NavigatorState> get navigatorKey => _key;
@@ -75,7 +75,7 @@ class _UriRouterDelegate extends RouterDelegate<Uri>
       if (match == null) continue;
       final args = p2re.extract(params, match);
 
-      final routeFromPattern = UriRouter.routePath(info.routePattern, args);
+      final routeFromPattern = GoRouter.routePath(info.routePattern, args);
       try {
         final page = info.builder(context, args);
         routePages.add(_RoutePageInfo(route: routeFromPattern, page: page));
@@ -145,7 +145,7 @@ class _UriRouteInformationParser extends RouteInformationParser<Uri> {
 }
 
 class _InheritedUriRouter extends InheritedWidget {
-  final UriRouter state;
+  final GoRouter state;
   const _InheritedUriRouter({required Widget child, required this.state, Key? key}) : super(child: child, key: key);
 
   @override
