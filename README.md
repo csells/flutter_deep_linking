@@ -19,9 +19,4 @@ To take advantage of this code, I recommend coping `routing.dart` into your proj
 Enjoy.
 
 # TODO
-- test different route groups, e.g. not logged in vs. logged in
-- test async id => object lookup
-- make routing a separate package
-- implement nesting routing
-- BUG: navigating back too fast crashes
-- BUG: navigation to error page is slow when using package:url_strategy to remove # from URLs
+- roll back to plain o' nav2
