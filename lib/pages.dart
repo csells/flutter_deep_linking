@@ -1,43 +1,30 @@
 import 'package:flutter/material.dart';
-
 import 'data.dart';
-import 'go_router.dart';
-import 'routing.dart' as routing;
 
-class FamiliesPage extends StatelessWidget {
+class HomePage extends StatelessWidget {
   final List<Family> families;
-  const FamiliesPage({required this.families, Key? key}) : super(key: key);
+  final ValueChanged<Family> onTap;
+  const HomePage({required this.families, required this.onTap, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Flutter Deep Linking Demo')),
         body: ListView(
-          children: [
-            for (final f in families)
-              ListTile(
-                title: Text(f.name),
-                onTap: () => context.go(routing.forFamily(family: f)),
-              )
-          ],
+          children: [for (final f in families) ListTile(title: Text(f.name), onTap: () => onTap(f))],
         ),
       );
 }
 
 class FamilyPage extends StatelessWidget {
   final Family family;
-  const FamilyPage({required this.family, Key? key}) : super(key: key);
+  final ValueChanged<Person> onTap;
+  const FamilyPage({required this.family, required this.onTap, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text(family.name)),
         body: ListView(
-          children: [
-            for (final p in family.people)
-              ListTile(
-                title: Text(p.name),
-                onTap: () => context.go(routing.forPerson(family: family, person: p)),
-              ),
-          ],
+          children: [for (final p in family.people) ListTile(title: Text(p.name), onTap: () => onTap(p))],
         ),
       );
 }
@@ -49,9 +36,7 @@ class PersonPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(person.name)),
-        body: Text('${person.name} ${family.name} is ${person.age} years old'),
-      );
+      appBar: AppBar(title: Text(person.name)), body: Text('${person.name} ${family.name} is ${person.age} years old'));
 }
 
 class Four04Page extends StatelessWidget {
@@ -61,17 +46,6 @@ class Four04Page extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Page Not Found')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(message),
-              TextButton(
-                onPressed: () => context.go('/'),
-                child: const Text('Home'),
-              ),
-            ],
-          ),
-        ),
+        body: Center(child: Text(message)),
       );
 }

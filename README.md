@@ -11,12 +11,8 @@ You can try this sample app [here](https://csells.github.io/flutter_deep_linking
 - **`main.dart`**: where the page widgets are defined, e.g. `PersonPage`
 - **`routing.dart`**: where the app-specific routing is defined, e.g. `AppRouteConfig`
 - **`data.dart`**: the simple data model that goes with this app
-- **`go_routing.dart`**: a Nav2 routing helper to make things easier to specify in `routing.dart`
 
 ## Usage
 To take advantage of this code, I recommend coping `routing.dart` into your project, tailoring it to fit your routable pages and then using those classes to `MaterialApp.router`.
 
 Enjoy.
-
-# TODO
-- roll back to plain o' nav2
